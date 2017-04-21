@@ -11,3 +11,8 @@ Base on https://github.com/gfwlist/gfwlist, but remove the following rules:
 @@||csi.gstatic.com
 
 @@||fonts.gstatic.com
+
+# How to run
+
+dotnet restore
+dotnet run

@@ -22,7 +22,7 @@ namespace GFWListUpdate
                 }
 
                 if(!string.IsNullOrEmpty(ignorelist)){
-                    ignoreLists = ignorelist.Split('\n').ToArray();
+                    ignoreLists = ignorelist.Split('\n').Select(x=>x.Replace("\r",string.Empty)).ToArray();
                 }
             }
 
@@ -44,7 +44,7 @@ namespace GFWListUpdate
             var list = System.Text.Encoding.ASCII.GetString(Convert.FromBase64String(content));
 
             if(!string.IsNullOrEmpty(list)){
-                var array = list.Split('\n').Where(x=>!ignoreLists.Contains(x));
+                var array = list.Split('\n').Where(x=>!ignoreLists.Any(i=>x.StartsWith(i, StringComparison.OrdinalIgnoreCase)));
                 content = String.Join("\n", array);
             }
 
@@ -52,6 +52,13 @@ namespace GFWListUpdate
                 Console.WriteLine("Failed");
                 return;
             }
+
+            //debug
+            //using(var fs = new FileStream("gfwlist_debug.txt", FileMode.Create, FileAccess.ReadWrite)){
+            //   var buffer = Encoding.ASCII.GetBytes(content);
+            //    fs.Write(buffer,0, buffer.Length);
+            //    fs.Flush();
+            //}
 
             using(var fs = new FileStream("gfwlist.txt", FileMode.Create, FileAccess.ReadWrite)){
                 var r = Convert.ToBase64String(Encoding.ASCII.GetBytes(content));
