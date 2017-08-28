@@ -26,7 +26,7 @@ namespace GFWListUpdate
                 }
             }
 
-             UpateGFWList(ignoreLists);  
+            UpateGFWList(ignoreLists);  
         }
 
         static void UpateGFWList(string[] ignoreLists){
@@ -45,6 +45,19 @@ namespace GFWListUpdate
 
             if(!string.IsNullOrEmpty(list)){
                 var array = list.Split('\n').Where(x=>!ignoreLists.Any(i=>x.StartsWith(i, StringComparison.OrdinalIgnoreCase)));
+
+                //userlist
+                if(File.Exists("userlist.txt")){
+                    var userlist = string.Empty;
+                    using(var fs = File.OpenRead("userlist.txt")){
+                        using(var streamReader = new StreamReader(fs)){
+                            userlist = streamReader.ReadToEnd();
+                        }
+                    }
+
+                    array = array.Union(userlist.Split('\n').Select(x=>x.Replace("\r",string.Empty)));
+                }
+
                 content = String.Join("\n", array);
             }
 
@@ -54,11 +67,11 @@ namespace GFWListUpdate
             }
 
             //debug
-            //using(var fs = new FileStream("gfwlist_debug.txt", FileMode.Create, FileAccess.ReadWrite)){
-            //   var buffer = Encoding.ASCII.GetBytes(content);
-            //    fs.Write(buffer,0, buffer.Length);
-            //    fs.Flush();
-            //}
+            using(var fs = new FileStream("gfwlist_debug.txt", FileMode.Create, FileAccess.ReadWrite)){
+              var buffer = Encoding.ASCII.GetBytes(content);
+               fs.Write(buffer,0, buffer.Length);
+               fs.Flush();
+            }
 
             using(var fs = new FileStream("gfwlist.txt", FileMode.Create, FileAccess.ReadWrite)){
                 var r = Convert.ToBase64String(Encoding.ASCII.GetBytes(content));
